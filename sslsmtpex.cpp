@@ -126,20 +126,20 @@ bool sslsmtpEx::SendAllMIME(string from, string to, string mimeDATA){
                 // mxhost = "localhost";
 
                 // SslSMTP smtp = SslSMTP("qflash.pl", 25);
-                sslsmtpEx smtp = sslsmtpEx(mxhost, 3333);
+                sslsmtpEx smtp = sslsmtpEx(mxhost, 25);
                 // send email
                 mailsend = smtp.SendMIME(from, to, mimeDATA);
                 if(mailsend){
                     cout << "Email has been sent! Port 25 " << from << " " << to << endl;
                 }else if(mailsend != 1){
                     // SslSMTP smtp = SslSMTP("qflash.pl", 587);
-                    sslsmtpEx smtp = sslsmtpEx(mxhost, 25);
+                    sslsmtpEx smtp = sslsmtpEx(mxhost, 587);
                     // send email
                     mailsend = smtp.SendMIME(from, to, mimeDATA);
                     cout << "Email has been sent! Port 587 " << from << " " << to << endl;
                 }else if(mailsend != 1){
                     // SslSMTP smtp = SslSMTP("qflash.pl", 587);
-                    sslsmtpEx smtp = sslsmtpEx(mxhost, 587);
+                    sslsmtpEx smtp = sslsmtpEx(mxhost, 465);
                     // send email
                     mailsend = smtp.SendMIME(from, to, mimeDATA);
                     cout << "Email has been sent! Port 465 " << from << " " << to << endl;
@@ -171,20 +171,20 @@ bool sslsmtpEx::SendAll(string from, string to, string replyto, string subject, 
                 // mxhost = "localhost";
 
                 // SslSMTP smtp = SslSMTP("qflash.pl", 25);
-                sslsmtpEx smtp = sslsmtpEx(mxhost, 3333);
+                sslsmtpEx smtp = sslsmtpEx(mxhost, 25);
                 // send email
                 mailsend = smtp.Send(from, to, replyto, subject, msg, msghtml, files);
                 if(mailsend){
                     cout << "Email has been sent! Port 25 " << from << " " << to << endl;
                 }else if(mailsend != 1){
                     // SslSMTP smtp = SslSMTP("qflash.pl", 587);
-                    sslsmtpEx smtp = sslsmtpEx(mxhost, 25);
+                    sslsmtpEx smtp = sslsmtpEx(mxhost, 587);
                     // send email
                     mailsend = smtp.Send(from, to, replyto, subject, msg, msghtml, files);
                     cout << "Email has been sent! Port 587 " << from << " " << to << endl;
                 }else if(mailsend != 1){
                     // SslSMTP smtp = SslSMTP("qflash.pl", 587);
-                    sslsmtpEx smtp = sslsmtpEx(mxhost, 587);
+                    sslsmtpEx smtp = sslsmtpEx(mxhost, 465);
                     // send email
                     mailsend = smtp.Send(from, to, replyto, subject, msg, msghtml, files);
                     cout << "Email has been sent! Port 465 " << from << " " << to << endl;
