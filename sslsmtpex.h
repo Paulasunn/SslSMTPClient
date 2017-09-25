@@ -81,7 +81,8 @@ public:
     static const char MimeTypes[][2][128];
 
     // Send email to external server
-    bool SendAll(string from, string to, string mimeDATA);
+    bool SendAllMIME(string from, string to, string mimeDATA);
+    bool SendAll(string from, string to, string replyto, string subject, string msg, string msghtml, vector<string> files);
 
     // --------------- DNS PART
     bool DnsSPFvalidIP(string host, string ip);
