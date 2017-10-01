@@ -29,10 +29,10 @@ int main(int count, char *strings[])
     files.push_back("filek.pdf");
 
     sslsmtpEx smtp = sslsmtpEx("",1);
-    bool mailsend1 = smtp.SendAll("<hello@breakermind.com>", "info@qflash.pl", "<hello@breakermind.com>", "Hello111111=2C_czy_um=F3wisz_si=EA_ze_mn=B1=3F?=", "Wiadomosć tekstowa dla usera", "<h1>Hello from html msg.</h1>", files);
+    bool mailsend1 = smtp.SendAll("<ho@breakermind.com>", "ho@qflash.pl", "<ho@breakermind.com>", "Hello =2C_czy_um=F3wisz_si=EA_ze_mn=B1=3F?=", "Wiadomosć tekstowa dla usera", "<h1>Hello from html msg.</h1>", files);
     cout << " Send email " << mailsend1 << endl;
     
-    // SslSMTP smtp = SslSMTP(25);
+    // SslSMTP smtp = SslSMTP("",25);
     // cout << smtp.Date(1) << endl;
     // smtp.Send("aspmx.l.google.com", "", "", "");
     // add files path
