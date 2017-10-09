@@ -218,6 +218,23 @@ bool sslsmtpEx::SendMIME(string from, string to, string mimeDATA)
 
         ctx = InitCTX();
         server = OpenConnection(hostname, atoi(portnum));
+        // Starttls first STARTTLS
+        char buffer[1024] = {0};
+        char *hello = (char*)"EHLO qflash.pl\r\n";
+        char *hellotls = (char*)"STARTTLS\r\n";
+        // STARTTLS
+        int valread = read(server,buffer,8192);
+        printf("Server : %s\n",buffer);
+        send(server,hello,strlen(hello),0);
+        printf("Hello message sent\n");
+        valread = read(server,buffer,8192);
+        printf("%s\n",buffer);
+        // starttls
+        send(server,hellotls,strlen(hellotls),0);
+        printf("STARTTLS message sent\n");
+        valread = read(server,buffer,8192);
+        printf("%s\n",buffer);             
+        // WITH TLS 
         ssl = SSL_new(ctx);						// create new SSL connection
         SSL_set_fd(ssl, server);				// attach the socket descriptor
 
@@ -321,6 +338,25 @@ bool sslsmtpEx::Send(string from, string to, string replyto, string subject, str
 
         ctx = InitCTX();
         server = OpenConnection(hostname, atoi(portnum));
+        
+        // Starttls first STARTTLS
+        char buffer[1024] = {0};
+        char *hello = (char*)"EHLO qflash.pl\r\n";
+        char *hellotls = (char*)"STARTTLS\r\n";
+
+        int valread = read(server,buffer,8192);
+        printf("Server : %s\n",buffer);
+        send(server,hello,strlen(hello),0);
+        printf("Hello message sent\n");
+        valread = read(server,buffer,8192);
+        printf("%s\n",buffer);
+        // starttls
+        send(server,hellotls,strlen(hellotls),0);
+        printf("STARTTLS message sent\n");
+        valread = read(server,buffer,8192);
+        printf("%s\n",buffer);    
+        
+        // WITH TLS 
         ssl = SSL_new(ctx);						// create new SSL connection
         SSL_set_fd(ssl, server);				// attach the socket descriptor
 
@@ -394,7 +430,7 @@ bool sslsmtpEx::Send(string from, string to, string replyto, string subject, str
             std::ostringstream m;
              m << "From: " << from << "\r\n";
              m << "To: " << to << "\r\n";
-             m << "Subject: =?" << Encoding << "?Q?"<< subject << "\r\n";
+             m << "Subject: =?" << Encoding << "?Q?"<< subject << "?=\r\n";
              m << "Reply-To: " << from << "\r\n";
              m << "Return-Path: " << from << "\r\n";
              m << "Date: "<< Date(1) << "\r\n";
