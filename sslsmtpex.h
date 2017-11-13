@@ -1,3 +1,6 @@
+// apt-get install libssl-dev openssl
+// g++ -o output main.cpp -lssl -lcrypto -lresolv -std=c++11 -std=c++14
+
 #ifndef SSLSMTPEX_H
 #define SSLSMTPEX_H
 
@@ -13,12 +16,13 @@
 #include <openssl/err.h>
 // quoted
 #include <iomanip>
+// ostringstream
 #include <sstream>
 // socket time out
 #include <sys/types.h>
 #include <sys/socket.h>
 
-// fstream
+// fstream, files
 #include <fstream>
 #include <cerrno>
 // signals errors
@@ -33,9 +37,11 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <resolv.h>
+// gethostbyname
 #include <netdb.h>
 #include <iostream>
 #include <fstream>
+// time microseconds
 #include <time.h>
 #include <vector>
 
@@ -58,17 +64,22 @@ private:
     int Port = 25;
     std::string HostnameMX = "localhost";
 public:
-    sslsmtpEx(string hostnameMX, int port);
+    long int microseconds();
+    sslsmtpEx();
+    void sslsmtpExSet(string hostnameMX, int port);
     // Create mime message and send
     int Send();
-    // ssl client
-    bool SendMIME(string from, string to,string mimeDATA);
+    // ssl client    
+    bool SendMIME(string from, string to,string mimeDATA, string serverHost, int msgID);
     bool Send(string from, string to, string replyto, string subject, string msg, string msghtml, vector<string> files);
     int OpenConnection(const char *hostname, int port);
     void socketTimeout(int sd, int timeoutseconds);
     SSL_CTX* InitCTX(void);
-    void ShowCerts(SSL* ssl);
-    void sslError(SSL *ssl, int received);
+    string ShowCerts(SSL* ssl);
+
+    void sslError1(SSL *ssl, int received);
+    void sslError(SSL *ssl, int received, string microtime, std::ostringstream &logi);
+    
     void quoted(std::string str);
     string Date(bool utc = 0);
     string fileBasename(string path);
@@ -79,10 +90,6 @@ public:
     string GetFileExtension(const std::string& FileName);
     bool Contain(std::string str, std::string search);
     static const char MimeTypes[][2][128];
-
-    // Send email to external server
-    bool SendAllMIME(string from, string to, string mimeDATA);
-    bool SendAll(string from, string to, string replyto, string subject, string msg, string msghtml, vector<string> files);
 
     // --------------- DNS PART
     bool DnsSPFvalidIP(string host, string ip);
@@ -102,6 +109,9 @@ public:
     std::string base64_decode(std::string const& s);
     static const std::string base64_chars;
     static inline bool is_base64(unsigned char c);
+    static int callback1(X509_STORE_CTX *ctx, void *arg);
+    static int callback(int x, X509_STORE_CTX *ctx);
+    static string replaceAll( string s, string search, string replace);
 
 };
 
