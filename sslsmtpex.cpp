@@ -116,6 +116,14 @@ void sslsmtpEx::sslsmtpExSet(std::string hostnameMX = "localhost", int port = 25
     cout << "ssl cleint " << HostnameMX << endl;
 }
 
+void sslsmtpEx::showLogs(){	
+	showlog = 1;
+}
+
+void sslsmtpEx::heloHostname(string host = "localhost"){	
+	heloHost = host;
+}
+
 long int sslsmtpEx::microseconds(){
     struct timeval tp;
     gettimeofday(&tp, NULL);
@@ -148,7 +156,7 @@ string sslsmtpEx::replaceAll( string s, string search, string replace ) {
 }
 
 // send mime message to server
-bool sslsmtpEx::SendMIME(string from, string to, string mimeDATA, string serverHost, int msgID)
+bool sslsmtpEx::SendMIME(string from, string to, string mimeDATA, int msgID)
 {
     // log
     string loghash = std::to_string(microseconds());
@@ -177,7 +185,7 @@ bool sslsmtpEx::SendMIME(string from, string to, string mimeDATA, string serverH
         if(server <= 0){
             logx << "[SMTP_CONNECTION_ERROR]" << endl;
             logx << "---" << loghash << "---\r\n" << endl;
-            cout << logx.str();
+            if(showlog){ cout << logx.str(); }
             return 0;
         }        
 
@@ -185,7 +193,7 @@ bool sslsmtpEx::SendMIME(string from, string to, string mimeDATA, string serverH
         char buffer[8192] = {0};
         char buffer1[8192] = {0};
         std::string E1 = "ehlo ";
-        E1.append(serverHost);
+        E1.append(heloHost);
         E1.append(" \r\n");
         char *hello = (char*)E1.c_str();        
 
@@ -207,27 +215,11 @@ bool sslsmtpEx::SendMIME(string from, string to, string mimeDATA, string serverH
         while(!Contain(std::string(buffer), "250 ")){
             valread = read(server,buffer,8192);
         }
-        /*
-        int dc = 1;
-        while(!Contain(std::string(buffer), "250") || Contain(std::string(buffer), ".ovh.")){
-            memset(buffer, 0, sizeof buffer);
-            buffer[0] = '\0';
-            // send helo
-            send(server,hello,strlen(hello),0);
-            logx << "[HELO] " << hello << endl;
-            valread = read(server,buffer,8192);
-            logx << "[Server] [" << valread << "] " <<  buffer << endl;
-            if(dc > 3){
-                break;
-            }
-            dc++;
-        }
-        */
-        
+                
         if(!Contain(std::string(buffer), "STARTTLS")){
             logx << "[EXTERNAL_SERVER_NO_TLS] " << hostname << " " << buffer << "[CLOSING_CONNECTION]" << endl;
             logx << "---" << loghash << "---\r\n" << endl;
-            cout << logx.str();
+            if(showlog){ cout << logx.str(); }
             return 0;
         }
 
@@ -244,7 +236,7 @@ bool sslsmtpEx::SendMIME(string from, string to, string mimeDATA, string serverH
         if(!Contain(std::string(buffer1), "220")){
             logx << "[EXTERNAL_SERVER_NOT_STARTTLS] " << hostname << " " << buffer1 << "[CLOSING_CONNECTION]" << endl;
             logx << "---" << loghash << "---\r\n" << endl;
-            cout << logx.str();
+            if(showlog){ cout << logx.str(); }
             return 0;
         }
 
@@ -270,7 +262,7 @@ bool sslsmtpEx::SendMIME(string from, string to, string mimeDATA, string serverH
             // ERR_print_errors_fp(stderr);            
             logx << "[TLS_SMTP_ERROR]" << endl;  
             logx << "---" << loghash << "---\r\n" << endl;
-            cout << logx.str();
+            if(showlog){ cout << logx.str(); }
             return 0;
         } else {
             // char *msg = (char*)"{\"from\":[{\"name\":\"Zenobiusz\",\"email\":\"email@eee.ddf\"}]}";
@@ -287,7 +279,7 @@ bool sslsmtpEx::SendMIME(string from, string to, string mimeDATA, string serverH
 
             buf[0] = '\0';
             std::ostringstream f0;
-            f0 << "EHLO " << serverHost << "\r\n";
+            f0 << "EHLO " << heloHost << "\r\n";
             std::string f00 = f0.str();
             char *helo = (char*)f00.c_str();
             logx << "[SEND_TLS] " << helo << endl;
@@ -338,16 +330,16 @@ bool sslsmtpEx::SendMIME(string from, string to, string mimeDATA, string serverH
             bytes = SSL_read(ssl, buf, sizeof(buf));
             buf[bytes] = 0;
             logx << "5 [RECEIVED_TLS] " << buf <<endl;
+            logx << "---" << loghash << "---" << endl << endl;
+            // send log
+            if(showlog){ cout << logx.str(); }
             if(!Contain(std::string(buf), "250"))return 0;
 
             char * qdata = (char*)"QUIT\r\n";
             SSL_write(ssl, qdata, strlen(qdata));
             bytes = SSL_read(ssl, buf, sizeof(buf));
             buf[bytes] = 0;
-            logx << "6 [RECEIVED_TLS] " << buf << endl;
-            logx << "---" << loghash << "---" << endl << endl;
-            // send log
-            cout << logx.str();
+            logx << "6 [RECEIVED_TLS] " << buf << endl;            
             if(!Contain(std::string(buf), "221"))return 1;
             
             SSL_free(ssl);
@@ -363,16 +355,16 @@ bool sslsmtpEx::SendMIME(string from, string to, string mimeDATA, string serverH
     }catch(std::exception &e){
         logx << std::string("[CONNECTION_ERROR] ") << std::string(e.what()) << endl;
         logx << "---" << loghash << "---\r\n" << endl;
-        cout << logx.str();
+        if(showlog == 1){ cout << logx.str(); }
         return 0;
     }catch(...){
         logx << std::string("[CONNECTION_ERROR1] ") << endl;
         logx << "---" << loghash << "---\r\n" << endl;
-        cout << logx.str();
+        if(showlog == 1){ cout << logx.str(); }
         return 0;
     }
     logx << "---" << loghash << "---\r\n" << endl;
-    cout << logx.str();    
+    if(showlog == 1){ cout << logx.str(); }    
     return 0;
 }
 
@@ -381,11 +373,16 @@ bool sslsmtpEx::SendMIME(string from, string to, string mimeDATA, string serverH
 // send message with attachments
 bool sslsmtpEx::Send(string from, string to, string replyto, string subject, string msg, string msghtml, vector<string> files)
 {
-     try{
+	// log
+    string loghash = std::to_string(microseconds());
+    std::ostringstream logx;
+    logx << endl << "###EXSMTP###" << loghash << endl;
+
+     try{     	
         SSL_CTX *ctx;
         int server;
         SSL *ssl;
-        char buf[1024];
+        char buf[8192];
         int bytes;
         char *hostname, *portnum;
         //cout << "PORT " << Port;
@@ -402,22 +399,33 @@ bool sslsmtpEx::Send(string from, string to, string replyto, string subject, str
             return 0;
         }
         // Starttls first STARTTLS
-        char buffer[1024] = {0};
-        char *hello = (char*)"EHLO qflash.pl\r\n";
+        char buffer[8192] = {0};
+        
+        std::string E1 = "EHLO ";
+        E1.append(heloHost);
+        E1.append(" \r\n");
+        char *hello = (char*)E1.c_str();
         char *hellotls = (char*)"STARTTLS\r\n";
 
         int valread = read(server,buffer,8192);
-        printf("Server : %s\n",buffer);
+        logx << "Server : " << buffer << endl;
         send(server,hello,strlen(hello),0);
-        printf("Hello message sent %i\n",valread);
+        logx << "Hello message sent " << valread << endl;
         valread = read(server,buffer,8192);
-        printf("%s\n",buffer);
+        logx << buffer << endl;
         // starttls
         send(server,hellotls,strlen(hellotls),0);
-        printf("STARTTLS message sent\n");
+        logx << "STARTTLS message sent" << endl;
         valread = read(server,buffer,8192);
-        printf("%s\n",buffer);
+        logx << buffer << endl;
         // return 0;
+
+        if(!Contain(std::string(buffer), "220")){
+            logx << "[EXTERNAL_SERVER_NOT_STARTTLS] " << hostname << " " << buffer << "[CLOSING_CONNECTION]" << endl;
+            logx << "---" << loghash << "---\r\n" << endl;
+            if(showlog == 1){ cout << logx.str(); }
+            return 0;
+        }
 
         // send with tls
         ctx = InitCTX();
@@ -426,15 +434,18 @@ bool sslsmtpEx::Send(string from, string to, string replyto, string subject, str
         SSL_set_verify(ssl, SSL_VERIFY_NONE, 0);
         // SSL_CTX_set_cert_verify_callback(ctx, callback);
 
-        cout << "Connection....smtp";
+        logx << "Connection....smtp" << endl;
 
 
         if ( SSL_connect(ssl) == FAIL ){
-            ERR_print_errors_fp(stderr);
-            return 0;
+            // ERR_print_errors_fp(stderr);            
+            logx << "[TLS_SMTP_ERROR]" << endl;  
+            logx << "---" << loghash << "---\r\n" << endl;
+            if(showlog == 1){ cout << logx.str(); }
+            return 0;            
         } else {
             // char *msg = (char*)"{\"from\":[{\"name\":\"Zenobiusz\",\"email\":\"email@eee.ddf\"}]}";
-            printf("Connected with %s encryption\n", SSL_get_cipher(ssl));
+            logx << "Connected with " << SSL_get_cipher(ssl) << " encryption" << endl;
             ShowCerts(ssl);
 
             //buf[0] = '\0';
@@ -447,14 +458,14 @@ bool sslsmtpEx::Send(string from, string to, string replyto, string subject, str
 
             buf[0] = '\0';
             std::ostringstream f0;
-            f0 << "EHLO qflash.pl" << "\r\n";
+            f0 << "EHLO " << heloHost << "\r\n";
             std::string f00 = f0.str();
             char *helo = (char*)f00.c_str();
-            cout << "SEND TO SERVER " << helo << endl;
+            logx << "SEND TO SERVER " << helo << endl;
             SSL_write(ssl, helo, strlen(helo));
             bytes = SSL_read(ssl, buf, sizeof(buf));
             buf[bytes] = 0;
-            printf("1 [RECEIVED_TLS] %s\n", buf);
+            logx << "1 [RECEIVED_TLS] " << buf << endl;
             if(!Contain(std::string(buf), "250"))return 0;
 
 
@@ -463,11 +474,11 @@ bool sslsmtpEx::Send(string from, string to, string replyto, string subject, str
             f1 << "mail from: <" << from << ">\r\n";
             std::string f11 = f1.str();
             char *fromemail = (char*)f11.c_str();
-            cout << "SEND TO SERVER " << fromemail << endl;
+            logx << "SEND TO SERVER " << fromemail << endl;
             SSL_write(ssl, fromemail, strlen(fromemail));
             bytes = SSL_read(ssl, buf, sizeof(buf));
             buf[bytes] = 0;
-            printf("2 [RECEIVED_TLS] %s\n", buf);
+            logx << "2 [RECEIVED_TLS] " << buf << endl;
             if(!Contain(std::string(buf), "250"))return 0;
 
 
@@ -475,20 +486,20 @@ bool sslsmtpEx::Send(string from, string to, string replyto, string subject, str
             std::string rcpt = "rcpt to: <";
             rcpt.append(to).append(">\r\n");
             char *rcpt1 = (char*)rcpt.c_str();
-            cout << "SEND TO SERVER " << rcpt1 << endl;
+            logx << "SEND TO SERVER " << rcpt1 << endl;
             SSL_write(ssl, rcpt1, strlen(rcpt1));
             bytes = SSL_read(ssl, buf, sizeof(buf));
             buf[bytes] = 0;
-            printf("3 [RECEIVED_TLS] %s\n", buf);
+            logx << "3 [RECEIVED_TLS] " << buf << endl;
             if(!Contain(std::string(buf), "250"))return 0;
 
             buf[0] = '\0';
             char *data = (char*)"DATA\r\n";
-            cout << "SEND TO SERVER " << data << endl;
+            logx << "SEND TO SERVER " << data << endl;
             SSL_write(ssl, data, strlen(data));
             bytes = SSL_read(ssl, buf, sizeof(buf));
             buf[bytes] = 0;
-            printf("4 [RECEIVED_TLS] %s\n", buf);
+            logx << "4 [RECEIVED_TLS] " << buf << endl;
             if(!Contain(std::string(buf), "354"))return 0;
 
             std::string Encoding = "iso-8859-2"; // charset: utf-8, utf-16, iso-8859-2, iso-8859-1
@@ -542,14 +553,17 @@ bool sslsmtpEx::Send(string from, string to, string replyto, string subject, str
             SSL_write(ssl, mdata, strlen(mdata));
             bytes = SSL_read(ssl, buf, sizeof(buf));
             buf[bytes] = 0;
-            printf("5 [RECEIVED_TLS] %s\n", buf);
+            logx << "5 [RECEIVED_TLS] " << buf << endl;
+            logx << "---" << loghash << "---" << endl << endl;
+            // send log
+            if(showlog == 1){ cout << logx.str(); }
             if(!Contain(std::string(buf), "250"))return 0;
 
             char * qdata = (char*)"QUIT\r\n";
             SSL_write(ssl, qdata, strlen(qdata));
             bytes = SSL_read(ssl, buf, sizeof(buf));
             buf[bytes] = 0;
-            printf("6 [RECEIVED_TLS] %s\n", buf);
+            logx << "6 [RECEIVED_TLS] " << buf << endl;            
             if(!Contain(std::string(buf), "221"))return 0;
 
             SSL_free(ssl);
@@ -558,6 +572,8 @@ bool sslsmtpEx::Send(string from, string to, string replyto, string subject, str
         close(server);
         SSL_CTX_free(ctx);
     }catch(std::exception &e){
+        logx << "---" << loghash << "---\r\n" << endl;
+        if(showlog == 1){ cout << logx.str(); }   
         return 0;
     }
 }
@@ -590,7 +606,7 @@ int sslsmtpEx::OpenConnection(const char *hostname, int port)
         {
             //strcpy(ip , inet_ntoa(*addr_list[i]) );
             addr.sin_addr = *addr_list[i];
-            cout << hostname << " resolved to " << inet_ntoa(*addr_list[i]) << endl;             
+            // cout << hostname << " resolved to " << inet_ntoa(*addr_list[i]) << endl;             
             inet_pton(AF_INET, inet_ntoa(*addr_list[i]), & addr.sin_addr);
             break;
         }
