@@ -63,14 +63,23 @@ class sslsmtpEx
 private:
     int Port = 25;
     std::string HostnameMX = "localhost";
-public:
+    
+public:    
+    // showlogs debug
+    int showlog = 0;
+    string heloHost = "localhost";
+    // show logs
+    void showLogs();
+    // EHLO hostname
+    void heloHostname(string host);
+
     long int microseconds();
     sslsmtpEx();
     void sslsmtpExSet(string hostnameMX, int port);
     // Create mime message and send
     int Send();
     // ssl client    
-    bool SendMIME(string from, string to,string mimeDATA, string serverHost, int msgID);
+    bool SendMIME(string from, string to, string mimeDATA, int msgID);
     bool Send(string from, string to, string replyto, string subject, string msg, string msghtml, vector<string> files);
     int OpenConnection(const char *hostname, int port);
     void socketTimeout(int sd, int timeoutseconds);
