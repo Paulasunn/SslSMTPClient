@@ -10,7 +10,7 @@
 #include <openssl/err.h>
 
 // apt-get install libssl-dev openssl
-// g++ -o start main.cpp sslsmtpex.cpp sslsmtpex.h -lssl -lresolv -lcrypto -sd=c++11 -std=c++14
+// g++ -o start main.cpp sslsmtpex.cpp sslsmtpex.h -lssl -lresolv -lcrypto -std=c++11 -std=c++14
 
 // Include client
 #include "sslsmtpex.h"
@@ -25,7 +25,7 @@ int main(int count, char *strings[])
     // Add attachments to message if you want
     vector<string> files;
     // files.push_back("file9.jpg");
-    // files.push_back("filek.pdf");
+    // files.push_back("img.png");
 
     // Initialize
     sslsmtpEx sm;
@@ -35,7 +35,7 @@ int main(int count, char *strings[])
     sm.heloHostname("qflash.pl");
 
     // Display logs
-    // sm.showLogs();
+    sm.showLogs();
     
     // get MX records from dns for recipient
     vector<string> mx = sm.getMX("nanomoow@gmail.com",0,0);
