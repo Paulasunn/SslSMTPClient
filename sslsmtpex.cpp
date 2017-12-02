@@ -194,7 +194,7 @@ bool sslsmtpEx::SendMIME(string from, string to, string mimeDATA, int msgID)
         char buffer1[8192] = {0};
         std::string E1 = "ehlo ";
         E1.append(heloHost);
-        E1.append(" \r\n");
+        E1.append("\r\n");
         char *hello = (char*)E1.c_str();        
 
         memset(buffer, 0, sizeof buffer);
@@ -404,7 +404,7 @@ bool sslsmtpEx::Send(string from, string to, string replyto, string subject, str
 
         std::string E1 = "ehlo ";
         E1.append(heloHost);
-        E1.append(" \r\n");
+        E1.append("\r\n");
         char *hello = (char*)E1.c_str();
         char *hellotls = (char*)"STARTTLS\r\n";
 
